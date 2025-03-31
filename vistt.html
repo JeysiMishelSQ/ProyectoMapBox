@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ubicacion en Mapa</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css' rel='stylesheet' />
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+        import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+
+        const firebaseConfig = {
+  apiKey: "AIzaSyA71filGAZEKG0oIpTyWtGCxo56ydscKT0",
+  authDomain: "mimovil1-6add5.firebaseapp.com",
+  databaseURL: "https://mimovil1-6add5-default-rtdb.firebaseio.com",
+  projectId: "mimovil1-6add5",
+  storageBucket: "mimovil1-6add5.firebasestorage.app",
+  messagingSenderId: "119963652921",
+  appId: "1:119963652921:web:c8f35dd98335a286378ee8",
+  measurementId: "G-MZ2FFJ2ZJ9"
+};
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        mapboxgl.accessToken = 'pk.eyJ1IjoiamV5c2kiLCJhIjoiY204c3owMjBmMDVlYjJycHdzZjc1bnlnaSJ9.GYASpUOleFsxRKjArtwYHQ';
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v12',
+            center: [0, 0],
+            zoom: 2
+        });
+
+        const marker = new mapboxgl.Marker()
+            .setLngLat([0, 0])
+            .addTo(map);
+
+        const locationRef = ref(database, 'ubicacion');
+        onValue(locationRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                const { latitude, longitude, time } = data;
+                const lngLat = [longitude, latitude];
+
+                marker.setLngLat(lngLat);
+                map.setCenter(lngLat);
+                map.setZoom(15);
+
+                document.getElementById('latitude').textContent = `Latitud: ${latitude}`;
+                document.getElementById('longitude').textContent = `Longitud: ${longitude}`;
+                document.getElementById('time').textContent = `Hora: ${time}`;
+            }
+        });
+    </script>
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+        #info-container {
+            position: fixed;
+            top: 450px;
+            right: 10px;
+            background: rgba(237, 140, 234, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div id="info-container">
+        <p id="latitude">Latitud: -</p>
+        <p id="longitude">Longitud: -</p>
+        <p id="time">Hora: -</p>
+    </div>
+</body>
+</html>
